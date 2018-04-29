@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Conexión a base de datos con Angular - Guidacode</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js
+"></script>
+<script>
+	var module = angular.module('myapp', []);
+	
+	module.factory('usuarioDataService', function ($http) {
+		var usuarioData = {};
+	
+		usuarioData.registrar = function (datosUsuario) {
+			var promise = $http({method: 'POST', url: 'registro.php', data: datosUsuario});
+			return promise;
+		}
+	
+	return usuarioData;
+
+	})
+	
+	module.controller("miControlador", function ($scope, usuarioDataService) {
+		$scope.persona = {};
+		$scope.persona.newsletter = true;
+		$scope.persona.canales = [
+			{ value: "television", label: "Television" },
+			{ value: "radio", label: "Radio" },
+			{ value: "redes-sociales", label: "Redes Sociales"},
+			{ value: "otro", label: "Otros"}
+		];
+		
+		$scope.validar = function () {
+			$scope.nombreInvalid = false;
+			$scope.apellidoInvalid = false;
+			$scope.emailInvalid = false;
+			$scope.medioInvalid = false;
+			$scope.mostrarMensajeExito = false;
+			$scope.mostrarMensajeError = false;
+			
+			if (!$scope.formularioRegistro.nombre.$valid) {
+			$scope.nombreInvalid = true;
+			}
+			if (!$scope.formularioRegistro.apellido.$valid) {
+			$scope.apellidoInvalid = true;
+			}
+			if (!$scope.formularioRegistro.email.$valid) {
+			$scope.emailInvalid = true;
+			}
+			if (!$scope.formularioRegistro.medio.$valid) {
+			$scope.medioInvalid = true;
+			}
+
+		// If the registration form is valid, use the
+		// usuarioDataService to submit the form data
+		if ($scope.formularioRegistro.$valid) {
+			
+			$scope.enProceso = true;
+
+			var promise = usuarioDataService.registrar($scope.persona);
+			
+			promise.then(function (reponse, status) {
+				$scope.mostrarMensajeExito = true;
+				console.log(reponse.data.id);
+				
+			},function(data) {
+				
+				$scope.errorPromise = "Parece que ha habido un problema con tu petición";
+
+				if(data.status == 404)
+					$scope.errorPromise = "Parece que no se ha encontrado el recurso solicitado";
+				
+				$scope.mostrarMensajeError = true;
+			});
+
+			promise.finally(function () {
+				$scope.enProceso = false;
+			});
+
+			$scope.doShow = true;
+		}
+	}
+})
+</script>
+<style>
+	body, input, select {
+		font: normal 1em Helvetica;
+	}
+
+	input:not([type='checkbox']), select {
+		width: 350px;
+	}
+
+	input, select {
+		padding: 5px;
+		margin-top: 12px;
+	}
+
+	input[name='email'].ng-dirty.ng-invalid-email {
+		color: red;
+	}
+	
+	input[name='email'].ng-dirty.ng-valid-email {
+		color: green;
+	}
+	
+	form span, .error {
+		color: red;
+	}
+</style>
+</head>
+<body ng-app="myapp">
+	<div>
+		<div ng-controller="miControlador">
+			<form name="formularioRegistro" ng-submit="validar()" novalidate>
+				
+				<div ng-show="mostrarMensajeExito">
+					Gracias por registrarte!
+				</div>
+				
+				<div class="error" ng-show="mostrarMensajeError">				
+					{{errorPromise}}
+				</div>
+
+				<input type="text" placeholder="Nombre" name="nombre" ng-model="persona.nombre" required/>
+				<span ng-show="nombreInvalid"><br/>Introduzca un nombre</span>
+				<br/>
+		
+				<input type="text" placeholder="Apellido" name="apellido" ng-model="persona.apellido" required/>
+				<span ng-show="apellidoInvalid"><br/>Introduzca un apellido</span>
+				<br/>
+				
+				<input type="email" placeholder="Email" name="email" ng-model="persona.email" required/>
+				<span ng-show="emailInvalid"><br/>Introduzca un email válido</span>
+				<br/>
+				
+				<select name="medio" ng-model="persona.medio" ng-options="obj.value as obj.label for obj in persona.canales" required>
+					<option value="">Donde has oído hablar de nosotros?</option>
+				</select>
+				<span ng-show="medioInvalid"><br/>Indica donde has oído hablar de nosostros</span>
+				<br/>
+
+				<input ng-model="persona.newsletter" type="checkbox" name="newsletter" id="newsletter" value="newsletter"/>
+				<label for="newsletter">Recibir newsletter</label>
+				<br/>
+
+				<input type="submit" value="Registro"/>
+
+				<span ng-show="enProceso" style="padding-left:10px;">
+					<p>Cargando...</p>
+				</span>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
