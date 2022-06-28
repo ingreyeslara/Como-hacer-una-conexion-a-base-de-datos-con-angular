@@ -5,7 +5,7 @@
 	$obj = json_decode($json);
 
 	// Conectando, seleccionando la base de datos	
-	$link = mysqli_connect('localhost', 'root', '', 'test')
+	$link = mysqli_connect('localhost', 'utd_2022', '', 'test')
 	    or die('No se pudo conectar: ' . mysql_error());
 	
 	// Realizar una consulta MySQL
