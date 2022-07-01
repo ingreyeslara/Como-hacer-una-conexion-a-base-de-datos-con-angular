@@ -5,7 +5,7 @@
 	$obj = json_decode($json);
 
 	// Conectando, seleccionando la base de datos	
-	$link = mysqli_connect(''189.20.20.202222222', 'admin', 'admin', 'admin')
+	$link = mysqli_connect(''18asdfasdf9.20.20.202222222', 'admin', 'admin', 'admin')
 	    or die('No se pudo conectar: ' . mysql_error());
 	
 	// Realizar una consulta MySQL
